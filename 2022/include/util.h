@@ -7,35 +7,37 @@
 
 std::vector<std::string> split(std::string str, char delim) {
     std::vector<std::string> out;
-    std::string cur;
+    std::string substr;
 
     for(char c : str) {
         if(c == delim) {
-            out.push_back(cur);
-            cur.clear();
+            out.push_back(substr);
+            substr.clear();
 
             continue;
         }
         
-        cur += c;
+        substr += c;
     }
 
-    out.push_back(cur);
+    out.push_back(substr);
 
     return out;
 }
 
 std::vector<std::string> split(std::string str, std::string delim) {
     std::vector<std::string> out;
-    std::string cur;
+    std::string substr;
 
-    size_t end = 0;
-
-    while((end = str.find(delim, end + delim.length())) != std::string::npos) {
-        printf("%lld\n", end);
+    size_t pos = 0;
+    
+    while((pos = str.find(delim)) != std::string::npos) {
+        out.push_back(str.substr(0, pos));
+        
+        str.erase(0, pos + delim.length());
     }
 
-    out.push_back(cur);
+    out.push_back(str);
 
     return out;
 }
