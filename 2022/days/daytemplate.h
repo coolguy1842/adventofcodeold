@@ -18,6 +18,15 @@ public:
     void partB() {
 
     }
+
+    void printResults() {
+        printf("---- Part A ----\n");
+        printf("\n");
+        //printf("---- Part B ----\n");
+        //printf("\n");
+        printf("----------------\n\n");
+        
+    }
 };
 
 #endif
