@@ -8,7 +8,7 @@
 
 namespace RPS {
 enum Outcomes {
-    LOSS = 0,
+    LOSE = 0,
     DRAW = 3,
     WIN = 6
 };
@@ -41,15 +41,14 @@ robin_hood::unordered_flat_map<char, struct Shape> shapesList = {
     {'Y', shapes[PAPER]},
     {'Z', shapes[SCISSORS]}
 };
+
 namespace PartB {
-    
 enum Actions {
     LOSE = 'X',
     DRAW = 'Y',
     WIN = 'Z',
 };
 };
-
 };
 
 class Day2 : AOC::Day {
@@ -60,11 +59,10 @@ public:
     long long int partAScore = 0;
     long long int partBScore = 0;
 
-
     using AOC::Day::Day;
 
     void partA() {
-        for(std::string str : this->input.text) {
+        for(std::string& str : this->input.text) {
             struct RPS::Shape opponentShape = RPS::shapesList[str[0]];
             struct RPS::Shape counterShape = RPS::shapesList[str[2]];
             partAScore += counterShape.score;
@@ -73,9 +71,9 @@ public:
                 // win
                 partAScore += RPS::Outcomes::WIN;
             }
-            else if(opponentShape.beatsID == counterShape.id) {
+            else if(counterShape.losesID == opponentShape.id) {
                 // loss
-                partAScore += RPS::Outcomes::LOSS;
+                partAScore += RPS::Outcomes::LOSE;
             }
             else {
                 // draw
@@ -85,23 +83,18 @@ public:
     }
 
     void partB() {
-        for(std::string str : this->input.text) {
+        for(std::string& str : this->input.text) {
             struct RPS::Shape opponentShape = RPS::shapesList[str[0]];
-            struct RPS::Shape counterShape;
             
-            switch(str[2])  {
+            switch(str[2]) {
             case RPS::PartB::Actions::WIN:
-                counterShape = RPS::shapes[opponentShape.losesID];
-
-                partBScore += counterShape.score + RPS::Outcomes::WIN;
+                partBScore += RPS::shapes[opponentShape.losesID].score + RPS::Outcomes::WIN;
                 break;
             case RPS::PartB::Actions::DRAW:
                 partBScore += opponentShape.score + RPS::Outcomes::DRAW;
                 break;
             case RPS::PartB::Actions::LOSE:
-                counterShape = RPS::shapes[opponentShape.beatsID];
-
-                partBScore += counterShape.score + RPS::Outcomes::LOSS;
+                partBScore += RPS::shapes[opponentShape.beatsID].score + RPS::Outcomes::LOSE;
                 break;
             default:
                 break;

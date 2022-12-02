@@ -12,7 +12,7 @@ public:
     static const bool hasSecondInput = false;
 
     using AOC::Day::Day;
-
+ 
     std::vector<size_t> elves;
 
     void partA() {
@@ -23,7 +23,7 @@ public:
             case 0:
                 this->elves.push_back(num);
                 num = 0;
-
+                
                 break;
             default:
                 num += atoll(str.c_str());
@@ -33,7 +33,7 @@ public:
         }
 
         this->elves.push_back(num);
-        std::sort(this->elves.rbegin(), this->elves.rend());   
+        std::sort(this->elves.rbegin(), this->elves.rend());
     }
     
     void partB() {}
