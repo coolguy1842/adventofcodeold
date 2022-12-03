@@ -18,9 +18,13 @@ int main() {
     char inputStr[22];
     char inputStrB[23];
 
+#ifdef _WIN32
     sprintf(inputStr, ".\\dayinputs\\%d\\input", currentDay::dayNum);
     if(currentDay::hasSecondInput) sprintf(inputStr, ".\\dayinputs\\%d\\inputB", currentDay::dayNum);
-    
+#else
+    sprintf(inputStr, "./dayinputs/%d/input", currentDay::dayNum);
+    if(currentDay::hasSecondInput) sprintf(inputStr, "./dayinputs/%d/inputB", currentDay::dayNum);
+#endif
     currentDay* day;
 
     if(currentDay::hasSecondInput) day = new currentDay(inputStr, inputStrB);

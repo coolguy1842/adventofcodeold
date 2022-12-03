@@ -8,11 +8,13 @@
 #include <vector>
 #include <sstream>
 
+#define unit long long int
+
 namespace AOC {
 
 struct input {
     std::vector<std::string> text;
-    std::vector<size_t> number;
+    std::vector<unit> number;
 
     bool numberValid;
 };
@@ -37,7 +39,7 @@ private:
             
             std::stringstream sstream(line);
 
-            size_t number;
+            unit number;
             sstream >> number;
 
             if(sstream.fail()) {

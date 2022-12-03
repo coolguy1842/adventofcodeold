@@ -8,8 +8,8 @@
 
 namespace partA {
     struct Rucksack {
-        robin_hood::unordered_flat_map<char, size_t> compartment1;
-        robin_hood::unordered_flat_map<char, size_t> compartment2;
+        robin_hood::unordered_flat_map<char, unit> compartment1;
+        robin_hood::unordered_flat_map<char, unit> compartment2;
 
         bool hasItemInCompartment1(char item) {
             return this->compartment1.find(item) != this->compartment1.end();
@@ -23,7 +23,7 @@ namespace partA {
 
 namespace partB {
     struct Rucksack {
-        robin_hood::unordered_flat_map<char, size_t> items;
+        robin_hood::unordered_flat_map<char, unit> items;
         
         bool hasItemInRucksack(char item) {
             return this->items.find(item) != this->items.end();
@@ -40,8 +40,8 @@ public:
     static const int dayNum = 3;
     static const bool hasSecondInput = false;
 
-    size_t partASolution = 0;
-    size_t partBSolution = 0;
+    unit partASolution = 0;
+    unit partBSolution = 0;
 
     using AOC::Day::Day;
 

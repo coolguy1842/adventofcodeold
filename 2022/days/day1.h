@@ -13,10 +13,10 @@ public:
 
     using AOC::Day::Day;
  
-    std::vector<size_t> elves;
+    std::vector<unit> elves;
 
     void partA() {
-        size_t num = 0;
+        unit num = 0;
 
         for(std::string& str : this->input.text) {
             switch(str.size()) {
