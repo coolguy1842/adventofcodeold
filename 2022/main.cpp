@@ -6,7 +6,7 @@
 
 #include <iostream>
 
-#define currentDay Day3
+#define currentDay Day4
 
 #define showResults true
 #define showTimers false
