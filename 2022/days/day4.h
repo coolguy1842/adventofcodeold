@@ -14,66 +14,56 @@ public:
     unit partASolution = 0;
     unit partBSolution = 0;
 
-    void partA() {
-        unit overlaps = 0;
+    bool overlaps(int position, int min, int max) {
+        return position >= min && position <= max;
+    }
 
+    bool anyOverlap(int min, int max, int overlapMin, int overlapMax) {
+        return (min >= overlapMin && min <= overlapMax) || (max >= overlapMin && max <= overlapMax);
+    }
+
+    bool fullyOverlaps(int min, int max, int overlapMin, int overlapMax) {
+        return (min >= overlapMin && min <= overlapMax) && (max >= overlapMin && max <= overlapMax);
+    }
+
+    struct pair {    
+        struct range {
+            int min;
+            int max;
+        };
+        
+        struct range first;
+        struct range second;
+    };
+
+    std::vector<struct pair> sections;
+
+    void partA() {
         for(std::string& str : this->input.text) {
+            // biggest thing i want to change but not sure what to do instead
             std::vector<std::string> splitStr = split(str, ',');
             std::vector<std::string> splitSection1 = split(splitStr[0], '-');
             std::vector<std::string> splitSection2 = split(splitStr[1], '-');
 
-            int splitSection1Min = std::stoi(splitSection1[0]);
-            int splitSection1Max = std::stoi(splitSection1[1]);
+            int section1Min = strtoint(splitSection1[0].c_str());
+            int section1Max = strtoint(splitSection1[1].c_str());
 
-            int splitSection2Min = std::stoi(splitSection2[0]);
-            int splitSection2Max = std::stoi(splitSection2[1]);
+            int section2Min = strtoint(splitSection2[0].c_str());
+            int section2Max = strtoint(splitSection2[1].c_str());
 
-            if(splitSection1Min >= splitSection2Min && splitSection1Max <= splitSection2Max) {
-                // first section is fully captured by the second section
-                overlaps++;
-            }
-            else if(splitSection2Min >= splitSection1Min && splitSection2Max <= splitSection1Max) {
-                // second section is fully captured by the first section
-                overlaps++;
-            }
+            // put into vector so it doesn't have to be calculated again
+            sections.push_back({{section1Min, section1Max}, {section2Min, section2Max}});
+
+            if(fullyOverlaps(section1Min, section1Max, section2Min, section2Max)) partASolution++;
+            else if(fullyOverlaps(section2Min, section2Max, section1Min, section1Max)) partASolution++;
         }
-
-        partASolution = overlaps;
     }
 
     void partB() {
-        unit overlaps = 0;
-
-        for(std::string& str : this->input.text) {
-            std::vector<std::string> splitStr = split(str, ',');
-            std::vector<std::string> splitSection1 = split(splitStr[0], '-');
-            std::vector<std::string> splitSection2 = split(splitStr[1], '-');
-
-            int splitSection1Min = std::stoi(splitSection1[0]);
-            int splitSection1Max = std::stoi(splitSection1[1]);
-
-            int splitSection2Min = std::stoi(splitSection2[0]);
-            int splitSection2Max = std::stoi(splitSection2[1]);
-
-            if(splitSection1Min >= splitSection2Min && splitSection1Min <= splitSection2Max) {
-                // first section is fully captured by the second section
-                overlaps++;
-            }
-            else if(splitSection2Min >= splitSection1Min && splitSection2Min <= splitSection1Max) {
-                // first section is fully captured by the second section
-                overlaps++;
-            }
-            else if(splitSection1Max >= splitSection2Min && splitSection1Max <= splitSection2Max) {
-                // first section is fully captured by the second section
-                overlaps++;
-            }
-            else if(splitSection2Max >= splitSection1Min && splitSection2Max <= splitSection1Max) {
-                // first section is fully captured by the second section
-                overlaps++;
-            }
+        for(struct pair& pair : sections) {
+            if(anyOverlap(pair.first.min, pair.first.max, pair.second.min, pair.second.max)) partBSolution++;
+            else if(anyOverlap(pair.second.min, pair.second.max, pair.first.min, pair.first.max)) partBSolution++;
         }
-
-        partBSolution = overlaps;
     }
 
     void printResults() {
