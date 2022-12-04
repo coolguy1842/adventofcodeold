@@ -97,7 +97,7 @@ public:
             for(char& c : str) {
                 if(rucksack.hasItemInRucksack(c)) continue;
 
-                rucksack.items[c] = false;
+                rucksack.items[c] = true;
             }
         
             newGroup.rucksacks[i] = rucksack;
