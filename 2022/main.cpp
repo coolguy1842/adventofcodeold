@@ -9,7 +9,7 @@
 #define currentDay Day5
 
 #define showResults true
-#define showTimers false
+#define showTimers true
 
 int main() {    
     AOC::Timer partBTimer("Part B");
