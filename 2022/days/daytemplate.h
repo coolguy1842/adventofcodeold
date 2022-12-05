@@ -1,13 +1,16 @@
-#ifndef __DAYNUM_H__
-#define __DAYNUM_H__
+#ifndef __DAYREPLACENUM_H__
+#define __DAYREPLACENUM_H__
 
 #include <day.h>
 #include <util.h>
 
-class DayNUM : AOC::Day {
+class DayREPLACENUM : AOC::Day {
 public:
-    static const int dayNum = NUM;
+    static const int dayNum = REPLACENUM;
     static const bool hasSecondInput = false;
+
+    unit partASolution = 0;
+    unit partBSolution = 0;
 
     using AOC::Day::Day;
 

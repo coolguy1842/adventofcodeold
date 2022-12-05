@@ -24,6 +24,35 @@ if not exist "%CD%\dayinputs\%folderCount%" mkdir %CD%\dayinputs\%folderCount% >
 
 .\aoc read -o -p %CD%\dayinputs\%folderCount%\puzzle.md -d %folderCount% > nul
 .\aoc download -o -i %CD%\dayinputs\%folderCount%\input -d %folderCount%
+
+
+exit 
+rem wip
+if exist %CD%\days\day%folderCount%.h (
+    rem file exists
+        
+    SETLOCAL DisableDelayedExpansion
+
+    del test.txt
+        
+    for /f "usebackq delims=" %%a in (%CD%\days\day%folderCount%.h) do (
+        SETLOCAL EnableDelayedExpansion
+        set str=%%a 
+        set str=!str:REPLACENUM=%folderCount%!
+
+        if !str! == "" (
+            echo( >> test.txt
+        )
+        else (
+            echo !str! >> test.txt
+        )
+    )
+
+
+) 
+else (
+    copy %CD%\days\daytemplate.h %CD%\days\day%folderCount%.h       
+)
 exit
 
 :invalidargs

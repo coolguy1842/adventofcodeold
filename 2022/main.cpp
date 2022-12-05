@@ -6,10 +6,10 @@
 
 #include <iostream>
 
-#define currentDay Day4
+#define currentDay Day5
 
 #define showResults true
-#define showTimers true
+#define showTimers false
 
 int main() {    
     AOC::Timer partBTimer("Part B");
