@@ -1,10 +1,9 @@
 #include <stdio.h>
+#include <iostream>
 
 #include <days.h>
 #include <util.h>
 #include <timer.h>
-
-#include <iostream>
 
 #define currentDay Day5
 

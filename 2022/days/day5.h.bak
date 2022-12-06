@@ -42,30 +42,14 @@ public:
         struct crateStruct* listEnd;
         
         unit size = 0;
-
-        void push_back(char c) {
-            struct crateStruct* crate = new struct crateStruct;
-            crate->prev = listEnd;
-            crate->c = c;
-
-            if(size == 0) {
-                listStart = crate;
-                listEnd = crate;
-                
-                return;
-            }
-            
-            listEnd->next = crate;
-            listEnd = crate;
-        }
     };
 
     // copy for partB
-    //std::vector<struct crateList> crates; 
+    std::vector<std::vector<char>> crates; 
     int idLine = -1;
 
     void partA() {
-        std::vector<struct crateList> crates; 
+        std::vector<std::vector<char>> crates; 
 
         while(this->input.text[++idLine][1] != '1');
 
@@ -75,20 +59,20 @@ public:
             // set id to id - 1
             int stackID = this->input.text[idLine][i] - 49;
 
-            struct crateList list;
+            crates.push_back({});
+            this->crates.push_back({});
 
             // loop through all the crates above the id
             for(int j = 0; j < idLine; j++) {
                 int crateID = this->input.text[j][i];
                 if(crateID == ' ' || crateID == '\0') continue;
                 
-                list.push_back(crateID);
+                crates[stackID].push_back(crateID);
+                this->crates[stackID].push_back(crateID);
             }
-            
-            crates.push_back(list);
         }
         
-        /*for(size_t i = idLine + 2; i < this->input.text.size(); i++) {
+        for(size_t i = idLine + 2; i < this->input.text.size(); i++) {
             std::vector<std::string> splitStr = split(this->input.text[i], ' ');
 
             int quantity = strtoint(splitStr[1].c_str());
@@ -98,11 +82,11 @@ public:
             moveFromStackToStack(quantity, &crates[moveFrom], &crates[moveTo], false);
         }
 
-        for(std::vector<char>& stack : crates) partASolution += stack[0];*/
+        for(std::vector<char>& stack : crates) partASolution += stack[0];
     }
 
     void partB() {
-        /*for(size_t i = idLine + 2; i < this->input.text.size(); i++) {
+        for(size_t i = idLine + 2; i < this->input.text.size(); i++) {
             std::vector<std::string> splitStr = split(this->input.text[i], ' ');
 
             int quantity = strtoint(splitStr[1].c_str());
@@ -112,7 +96,7 @@ public:
             moveFromStackToStack(quantity, &crates[moveFrom], &crates[moveTo], true);
         }
         
-        for(std::vector<char>& stack : crates) partBSolution += stack[0];*/
+        for(std::vector<char>& stack : crates) partBSolution += stack[0];
     }
 
     void printResults() {
