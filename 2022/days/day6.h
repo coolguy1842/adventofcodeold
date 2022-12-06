@@ -4,6 +4,8 @@
 #include <day.h>
 #include <util.h>
 
+#include <stdio.h>
+
 class Day6 : AOC::Day {
 public:
     static const int dayNum = 6;
@@ -14,18 +16,18 @@ public:
 
     using AOC::Day::Day;
 
-    void partA() {
-        std::vector<char> curMarker;
-        unit curChar = 0;
+    void findUniqueSequence(size_t len, unit* positionOut) {
+        char* curMarker = (char*)calloc(sizeof(char), len--);
+        size_t curMarkerLen = 0;
 
-        for(char c : this->input.text[0]) {
-            if(curMarker.size() > 3) {
+        for(char& c : this->input.text[0]) {
+            if(curMarkerLen > len) {
                 bool success = true;
 
-                for(size_t i = 0; i < curMarker.size() - 1; i++) {
+                for(size_t i = 0; i < curMarkerLen - 1; i++) {
                     if(success == false) break;
 
-                    for(size_t j = i + 1; j < curMarker.size(); j++) {
+                    for(size_t j = i + 1; j < curMarkerLen; j++) {
                         if(curMarker[i] == curMarker[j]) {
                             success = false;
                             break;
@@ -33,59 +35,23 @@ public:
                     }   
                 }
 
-                if(success) {
-                    printf("%c%c%c%c\n", curMarker[0], curMarker[1], curMarker[2], curMarker[3]);
-                    partASolution = curChar;
-                    return;
-                }
-            }
+                if(success) return;
 
-            if(curMarker.size() < 4) {
-                curMarker.push_back(c);
+                memmove(curMarker, curMarker + 1, sizeof(char) * len);
+                curMarker[curMarkerLen - 1] = c;
             }
-            else {
-                curMarker.erase(curMarker.begin());
-                curMarker.push_back(c);
-            }
-            curChar++;
+            else curMarker[curMarkerLen++] = c;
+            
+            (*positionOut)++;
         }
     }
 
+    void partA() {
+        findUniqueSequence(4, &partASolution);
+    }
+
     void partB() {
-        std::vector<char> curMarker;
-        unit curChar = 0;
-
-        for(char c : this->input.text[0]) {
-            if(curMarker.size() > 13) {
-                bool success = true;
-
-                for(size_t i = 0; i < curMarker.size() - 1; i++) {
-                    if(success == false) break;
-
-                    for(size_t j = i + 1; j < curMarker.size(); j++) {
-                        if(curMarker[i] == curMarker[j]) {
-                            success = false;
-                            break;
-                        }
-                    }   
-                }
-
-                if(success) {
-                    partBSolution = curChar;
-                    return;
-                }
-            }
-
-            if(curMarker.size() < 14) {
-                curMarker.push_back(c);
-            }
-            else {
-                curMarker.erase(curMarker.begin());
-                curMarker.push_back(c);
-            }
-
-            curChar++;
-        }
+        findUniqueSequence(14, &partBSolution);  
     }
 
     void printResults() {
