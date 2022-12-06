@@ -73,7 +73,7 @@ public:
             if(this->input.text[idLine][i] == ' ') continue;
 
             // set id to id - 1
-            int stackID = this->input.text[idLine][i] - 49;
+            //int stackID = this->input.text[idLine][i] - 49;
 
             struct crateList list;
 

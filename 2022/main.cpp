@@ -5,10 +5,10 @@
 #include <util.h>
 #include <timer.h>
 
-#define currentDay Day5
+#define currentDay Day6
 
 #define showResults true
-#define showTimers true
+#define showTimers false
 
 int main() {    
     AOC::Timer partBTimer("Part B");
