@@ -44,6 +44,8 @@ public:
             
             (*positionOut)++;
         }
+
+        free(curMarker);
     }
 
     void partA() {
