@@ -5,7 +5,7 @@
 #include <util.h>
 #include <timer.h>
 
-#define currentDay Day6
+#define currentDay Day7
 
 #define showResults true
 #define showTimers false

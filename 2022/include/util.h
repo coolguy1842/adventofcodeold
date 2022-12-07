@@ -54,4 +54,14 @@ int strtoint(const char* str) {
     return out;
 }
 
+unit strtounit(const char* str) {
+    unit out = 0;
+
+    while(*str) {
+        out = out * 10 + (*str++ - '0');
+    }
+
+    return out;
+}
+
 #endif
