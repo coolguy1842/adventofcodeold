@@ -16,6 +16,7 @@ struct command {
 struct rawFile {
     bool isDir = false;
     unit size;
+
     std::string name;
 };
 
@@ -65,12 +66,14 @@ struct rawFile rawFileFromStr(std::string str) {
 unit getDirSize(std::string dir, robin_hood::unordered_flat_map<std::string, std::vector<struct rawFile>> dirContents) {
     unit size = 0; 
 
-    for(struct rawFile file : dirContents[dir]) {
-        if(!file.isDir) {
+    for(rawFile& file : dirContents[dir]) {
+        switch(file.isDir) {
+        case false:
             size += file.size;
-        }
-        else {
+            break;
+        default:
             size += getDirSize(dir + file.name, dirContents);
+            break;
         }
     }
 
@@ -90,9 +93,10 @@ public:
     using AOC::Day::Day;
     std::string curDir = "";
     robin_hood::unordered_flat_map<std::string, std::vector<struct partA::rawFile>> dirContents = {};
+    robin_hood::unordered_flat_map<std::string, unit> dirSizes = {};
 
     void partA() {
-        for(std::string str : this->input.text) {
+        for(std::string& str : this->input.text) {
             if(str[0] == '$') {
 
                 struct partA::command command = partA::commandFromStr(str);
@@ -103,7 +107,6 @@ public:
                     }
                     else if(command.args[0] == "..") {
                         std::vector<std::string> splitStr = split(curDir, '/');
-
                         curDir.clear();
                         
                         for(size_t i = 0; i < splitStr.size() - 2; i++) {
@@ -118,31 +121,28 @@ public:
             else {
                 partA::rawFile file = partA::rawFileFromStr(str);
 
-                if(!dirContents.contains(curDir)) {
-                    dirContents[curDir] = {};
-                }
-                
                 dirContents[curDir].push_back(file);
             }
         }
 
         for(auto pair : dirContents) {
             unit size = partA::getDirSize(pair.first, dirContents);
+            dirSizes[pair.first] = size;
         
             if(size <= 100000) partASolution += size;
         }
     }
 
     void partB() {
-        unit available = 70000000 - partA::getDirSize("/", dirContents);
+        unit available = 70000000 - dirSizes["/"];
         unit sizeToDelete = 30000000;
         
-        for(auto pair : dirContents) {
-            unit size = partA::getDirSize(pair.first, dirContents);
+        for(auto& pair : dirContents) {
+            unit size = dirSizes[pair.first];
             unit test = available + size;
 
-            if(test >= sizeToDelete) {
-                partBSolution = std::min(size, partBSolution);
+            if(test >= sizeToDelete && size < partBSolution) {
+                partBSolution = size;
             }
         }
     }
