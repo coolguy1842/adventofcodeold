@@ -136,7 +136,9 @@ public:
                 unit upScore = scoreFromDir(UP, x, y);
                 unit downScore = scoreFromDir(DOWN, x, y);
 
-                if(leftScore * rightScore * upScore * downScore > highestScore) {
+                unit treeScore = leftScore * rightScore * upScore * downScore;
+
+                if(treeScore > highestScore) {
                     highestScore = treeScore;
                 } 
             }
