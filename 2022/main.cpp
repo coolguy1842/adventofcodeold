@@ -5,14 +5,14 @@
 #include <util.h>
 #include <timer.h>
 
-#define currentDay Day7
+#define currentDay Day8
 
 #define showResults true
 #define showTimers false
 
 int main() {    
-    AOC::Timer partBTimer("Part B");
     AOC::Timer partATimer("Part A");
+    AOC::Timer partBTimer("Part B");
     
     char inputStr[22];
     char inputStrB[23];
