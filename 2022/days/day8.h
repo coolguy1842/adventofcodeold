@@ -26,28 +26,38 @@ public:
     unit width = (unit)this->input.text[0].size();
     unit height = (unit)this->input.text.size();
 
-    bool visibleFromDir(direction dir, unit x, unit y) {
+    bool visibleFromDir(direction dir, unit x, unit y, unit* score) {
         char treeHeight = this->input.text[y][x];
+
+        *score = 0;
 
         switch (dir) {
         case LEFT:
-            for(unit i = 1; x - i >= 0; i++) {
-                if(treeHeight <= this->input.text[y][x - i]) return false;
+            for(x--; x >= 0; x--) {
+                (*score)++;
+
+                if(treeHeight <= this->input.text[y][x]) return false;
             }
             break;
         case RIGHT:
-            for(unit i = 1; x + i < width; i++) {
-                if(treeHeight <= this->input.text[y][x + i]) return false;
+            for(x++; x < width; x++) {
+                (*score)++;
+
+                if(treeHeight <= this->input.text[y][x]) return false;
             }
             break;
         case UP:
-            for(unit i = 1; y - i >= 0; i++) {
-                if(treeHeight <= this->input.text[y - i][x]) return false;
+            for(y--; y >= 0; y--) {
+                (*score)++;
+
+                if(treeHeight <= this->input.text[y][x]) return false;
             }
             break;
         case DOWN:
-            for(unit i = 1; y + i < height; i++) {
-                if(treeHeight <= this->input.text[y + i][x]) return false;
+            for(y++; y < height; y++) {                
+                (*score)++;
+
+                if(treeHeight <= this->input.text[y][x]) return false;
             }
             break;
         default:
@@ -58,93 +68,40 @@ public:
     }
 
     void partA() {
-        std::vector<std::string> text = this->input.text;
+        unit scoreLeft = 0;
+        unit scoreRight = 0;
+        unit scoreUp = 0;
+        unit scoreDown = 0;
+        unit totalScore;
+        bool visible = false;
 
-        unit visibleTrees = 0;
+        for(unit x = 1; x < width - 1; x++) {
+            for(unit y = 1; y < height - 1; y++) {
 
-        for(unit x = 0; x < width; x++) {
-            for(unit y = 0; y < height; y++) {
-                if(x == 0 || x == width - 1) {
-                    visibleTrees++;
-                    continue;
+                switch (this->input.text[y][x]) {
+                case '0':
+                    break;                
+                default:
+                    visible = visibleFromDir(LEFT, x, y, &scoreLeft);
+                    visible = visibleFromDir(RIGHT, x, y, &scoreRight) ? true : visible;
+                    visible = visibleFromDir(UP, x, y, &scoreUp) ? true : visible;
+                    visible = visibleFromDir(DOWN, x, y, &scoreDown) ? true : visible;
+
+                    if(visible) partASolution++;
+
+                    totalScore = scoreLeft * scoreRight * scoreUp * scoreDown;
+                    if(totalScore > partBSolution) partBSolution = totalScore;
+                    break;
                 }
-                else if(y == 0 || y == height - 1) {
-                    visibleTrees++;
-                    continue;
-                }
 
-                if(visibleFromDir(LEFT, x, y)) visibleTrees++;
-                else if(visibleFromDir(RIGHT, x, y)) visibleTrees++;
-                else if(visibleFromDir(UP, x, y)) visibleTrees++;
-                else if(visibleFromDir(DOWN, x, y)) visibleTrees++;
             }
         }
 
-        partASolution = visibleTrees;
-    }
-
-    unit scoreFromDir(direction dir, unit x, unit y) {
-        char treeHeight = this->input.text[y][x];
-
-        unit score = 0;
-
-        switch (dir) {
-        case LEFT:
-            for(unit i = 1; x - i >= 0; i++) {
-                score++;
-
-                if(treeHeight <= this->input.text[y][x - i]) break;
-            }
-            break;
-        case RIGHT:
-            for(unit i = 1; x + i < width; i++) {
-                score++;
-
-                if(treeHeight <= this->input.text[y][x + i]) break;
-            }
-            break;
-        case UP:
-            for(unit i = 1; y - i >= 0; i++) {
-                score++;
-
-                if(treeHeight <= this->input.text[y - i][x]) break;
-            }
-            break;
-        case DOWN:
-            for(unit i = 1; y + i < height; i++) {
-                score++;
-
-                if(treeHeight <= this->input.text[y + i][x]) break;
-            }
-            break;
-        default:
-            break;
-        }
-        
-        return score;
+        partASolution += ((width + height) * 2) - 4;
     }
 
     void partB() {
-        std::vector<std::string> text = this->input.text;
-        unit highestScore = 0;
 
-        for(unit x = 0; x < width; x++) {
-            for(unit y = 0; y < height; y++) {
-
-                unit leftScore = scoreFromDir(LEFT, x, y);
-                unit rightScore = scoreFromDir(RIGHT, x, y);
-                unit upScore = scoreFromDir(UP, x, y);
-                unit downScore = scoreFromDir(DOWN, x, y);
-
-                unit treeScore = leftScore * rightScore * upScore * downScore;
-
-                if(treeScore > highestScore) {
-                    highestScore = treeScore;
-                } 
-            }
-        }
-
-        partBSolution = highestScore;
     }
 
     void printResults() {
