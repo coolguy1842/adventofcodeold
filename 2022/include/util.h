@@ -46,9 +46,24 @@ std::vector<std::string> split(std::string& str, std::string delim) {
 // shaves off ~200us compared to std::stoi in day 4
 int strtoint(const char* str) {
     int out = 0;
+    bool neg = false;
 
-    while(*str) {
-        out = out * 10 + (*str++ - '0');
+    if(*str == '-') {
+        neg = true;
+        str++;
+    }
+
+    switch (neg) {
+    case true:
+        while(*str) {
+            out = out * 10 - (*str++ - '0');
+        }
+        break;
+    default:
+        while(*str) {
+            out = out * 10 + (*str++ - '0');
+        }
+        break;
     }
 
     return out;
@@ -56,9 +71,24 @@ int strtoint(const char* str) {
 
 unit strtounit(const char* str) {
     unit out = 0;
+    bool neg = false;
 
-    while(*str) {
-        out = out * 10 + (*str++ - '0');
+    if(*str == '-') {
+        neg = true;
+        str++;
+    }
+
+    switch (neg) {
+    case true:
+        while(*str) {
+            out = out * 10 - (*str++ - '0');
+        }
+        break;
+    default:
+        while(*str) {
+            out = out * 10 + (*str++ - '0');
+        }
+        break;
     }
 
     return out;

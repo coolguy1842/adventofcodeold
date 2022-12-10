@@ -11,6 +11,7 @@
 #include <day7.h>
 #include <day8.h>
 #include <day9.h>
+#include <day10.h>
 
 
 #endif
