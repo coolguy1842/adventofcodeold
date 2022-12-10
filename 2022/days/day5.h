@@ -15,59 +15,23 @@ public:
     using AOC::Day::Day;
 
     struct crateStruct {
-        struct crateStruct* prev;
+        struct crateStruct* prev = nullptr;
         char c;
-        struct crateStruct* next;
+        struct crateStruct* next = nullptr;
     };
     
     struct crateList {
-        struct crateStruct* listStart;
-        struct crateStruct* listEnd;
+        struct crateStruct* listStart = nullptr;
         
         size_t size = 0;
-
-        void push_back(char c) {
-            struct crateStruct* crate = new struct crateStruct;
-            crate->prev = listEnd;
-            crate->c = c;
-
-            if(size++ == 0) {
-                listStart = crate;
-                listEnd = crate;
-                
-                return;
-            }
-            
-            listEnd->next = crate;
-            listEnd = crate;
-        }
         
         void push_front(char c) {
             struct crateStruct* crate = new struct crateStruct;
-            crate->prev = listStart;
             crate->c = c;
+            crate->next = listStart;
 
-            if(size++ == 0) {
-                listStart = crate;
-                listEnd = crate;
-                
-                return;
-            }
-            
-            listStart->prev = crate;
+            if(size++ != 0) listStart->prev = crate;
             listStart = crate;
-        }
-
-        char pop_back() {
-            size--;
-            char c = listEnd->c;
-
-            struct crateStruct* prevEnd = listEnd;
-            listEnd = prevEnd->prev;
-            delete prevEnd;
-
-            listEnd->next = nullptr;
-            return c;
         }
         
         char pop_front() {
@@ -86,20 +50,20 @@ public:
     void moveFromStackToStack(int quantity, struct crateList* stack, struct crateList* newStack) {
         for(int i = 0; i < quantity; i++) {
             //printf("%d\n", stack->size);
-            char c = stack->pop_back();
-            newStack->push_back(c);
+            char c = stack->pop_front();
+            newStack->push_front(c);
         }
     }
 
 
     void printCrates(std::vector<struct crateList> crates) {
         for(struct crateList stack : crates) {
-            struct crateStruct* curCrate = stack.listEnd;
+            struct crateStruct* curCrate = stack.listStart;
             
             for(size_t i = 0; i < stack.size; i++) {
                 printf("%c", curCrate->c);
 
-                curCrate = curCrate->prev;
+                curCrate = curCrate->next;
             }
 
             printf("\n");
@@ -121,14 +85,14 @@ public:
             // set id to id - 1
             //int stackID = this->input.text[idLine][i] - 49;
 
-            struct crateList list;
+            struct crateList list = {};
 
             // loop through all the crates above the id
             for(int j = 0; j < idLine; j++) {
                 char crateID = this->input.text[j][i];
                 if(crateID == ' ' || crateID == '\0') continue;
 
-                list.push_back(crateID);
+                list.push_front(crateID);
             }
             
             crates.push_back(list);

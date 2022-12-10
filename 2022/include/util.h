@@ -64,4 +64,14 @@ unit strtounit(const char* str) {
     return out;
 }
 
+size_t strtoull(const char* str) {
+    size_t out = 0;
+
+    while(*str) {
+        out = out * 10 + (*str++ - '0');
+    }
+
+    return out;
+}
+
 #endif
