@@ -4,25 +4,22 @@
 #include <day.h>
 #include <util.h>
 
+#include <bit>
+
 #include <robin_hood.h>
 
 struct position {
-    unit x = 0;
-    unit y = 0;
+    int x = 0;
+    int y = 0;
     
-    bool operator==(const position &other) const { 
-        return (x == other.x && y == other.y);
+    bool operator==(const position& p) const { 
+        return (this->x == p.x && this->y == p.y);
+    }
+    
+    std::size_t operator()(const position& p) const {
+        return ((size_t)p.x << 32) | (size_t)p.y;
     }
 };
-
-struct positionHasher {
-    std::size_t operator()(const position& k) const {
-        using std::hash;
-
-        return ((hash<unit>()(k.x) ^ (hash<unit>()(k.y) << 1)) >> 1);
-    }
-};
-
 
 enum Direction {
     LEFT = 'L',
@@ -33,26 +30,26 @@ enum Direction {
 };
 
 struct knot {
-    struct position position = {};
+    struct position position;
     
-    robin_hood::unordered_flat_map<struct position, bool, positionHasher> prevPositions;
+    robin_hood::unordered_flat_map<struct position, bool, struct position> prevPositions;
 
-    void moveToNext(knot prev) {
-        unit nextX = prev.position.x;
-        unit nextY = prev.position.y;
-        
+    void moveToKnot(struct position& knotPos) {
+        unit knotX = knotPos.x;
+        unit knotY = knotPos.y;
+
         unit thisX = position.x;
         unit thisY = position.y;
 
-        if(std::abs(nextX - thisX) > 1 || std::abs(nextY - thisY) > 1) {
-            if(nextX != thisX) position.x += (thisX < nextX ? 1 : -1);
-            if(nextY != thisY) position.y += (thisY < nextY ? 1 : -1);
+        if(std::abs(knotX - thisX) > 1 || std::abs(knotY - thisY) > 1) {
+            if(knotX != thisX) position.x += (thisX < knotX ? 1 : -1);
+            if(knotY != thisY) position.y += (thisY < knotY ? 1 : -1);
         }
         
         prevPositions[position] = true;
     }
 
-    void move(char dir) {
+    void move(char& dir) {
         switch(dir) {
         case LEFT:
             position.x -= 1;
@@ -79,53 +76,55 @@ public:
     static const int dayNum = 9;
     static const bool hasSecondInput = false;
 
-    unit partASolution = 0;
-    unit partBSolution = 0;
+    size_t partASolution = 0;
+    size_t partBSolution = 0;
 
     using AOC::Day::Day;
+
+    std::vector<size_t> amounts;
 
     void partA() {
         struct knot head = {};
         struct knot tail = {};
 
+        std::vector<std::string> splitStr;
+        size_t amount, i;
+
         for(std::string& str : this->input.text) {
-            std::vector<std::string> splitStr = split(str, ' ');
+            splitStr = split(str, ' ');
             
-            size_t amount = strtoull(splitStr[1].c_str());
-            for(size_t i = 0; i < amount; i++) {
+            amount = strtoull(splitStr[1].c_str());
+            amounts.push_back(amount);
+
+            for(i = 0; i < amount; i++) {
                 head.move(str[0]);
 
-                tail.moveToNext(head);
+                tail.moveToKnot(head.position);
             }
         }
 
-        partASolution = (unit)tail.prevPositions.size();
+        partASolution = tail.prevPositions.size();
     }
 
     void partB() {
-#define knotsCount 10
+        #define knotsCount 10U
 
-        std::vector<knot> knots = {};
-
-        for(size_t i = 0; i < knotsCount; i++) {
-            struct knot knot = {};
-            knots.push_back(knot);
-        }
+        knot knots[knotsCount];
+        size_t i = 0, j, k;
 
         for(std::string& str : this->input.text) {
-            std::vector<std::string> splitStr = split(str, ' ');
-            size_t amount = strtoull(splitStr[1].c_str());
-
-            for(size_t i = 0; i < amount; i++) {
+            for(j = 0; j < amounts[i]; j++) {
                 knots[0].move(str[0]);
 
-                for(size_t j = 1; j < knots.size(); j++) {
-                    knots[j].moveToNext(knots[j - 1]);
+                for(k = 1; k < knotsCount; k++) {
+                    knots[k].moveToKnot(knots[k - 1].position);
                 }
             }
+
+            i++;
         }
 
-        partBSolution = (unit)knots[knotsCount - 1].prevPositions.size();
+        partBSolution = knots[knotsCount - 1].prevPositions.size();
     }
 
     void printResults() {
