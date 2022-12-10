@@ -42,7 +42,6 @@ std::vector<std::string> split(std::string& str, std::string delim) {
     return out;
 }
 
-
 // shaves off ~200us compared to std::stoi in day 4
 int strtoint(const char* str) {
     int out = 0;

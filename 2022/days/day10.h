@@ -9,7 +9,7 @@
 #define INVALID_ID 0U - 1
 unit strength;
 
-typedef void (*instructionFunction)(class Instruction& instruction, std::vector<std::string>& args, class CPU* cpu);
+typedef void (*instructionFunction)(std::vector<std::string>& args, class CPU* cpu);
 
 class Instruction {
 public:
@@ -39,16 +39,17 @@ public:
         size_t pos = rdtsc % 40;
         size_t curCol = rdtsc / 40;
 
-        if(std::abs((unit)pos - x) <= 1) {
+        switch(std::abs((unit)pos - x)) {
+        case 0: case 1:
             grid[curCol][pos] = '#';
-        }
-        else {
+            break;
+        default:
             grid[curCol][pos] = '.';
+            break;
         }
     }
 
     void printGrid() {
-
         for(size_t i = 0; i < CRT_HEIGHT; i++) {
             grid[i][CRT_WIDTH] = '\0';
             printf("%s\n", grid[i]);
@@ -58,20 +59,17 @@ public:
 
 class CPU {
 public:
-    template<class T>
-    struct Register {
-        T val;
-
-        Register(T val) : val(val) {}
-    };
-
     struct Task {
         Instruction instruction;
         std::vector<std::string> args;
         unit cycles;
+
+        Task(struct Instruction instruction, std::vector<std::string> args) : instruction(instruction), args(args) {
+            this->cycles = instruction.cycles;
+        }
     };
 
-    struct Register<unit> x = Register((unit)1);
+    unit x = 1;
 
     std::vector<class Task> taskQueue;
     class Task* runningTask;
@@ -90,16 +88,17 @@ public:
             activeTask = true;
         }
 
-        rdtsc += 1;
+        display.updateGrid(rdtsc, x);
+        rdtsc++;
         
         if(((unit)this->rdtsc - 20) % 40 == 0) {
-            strength += this->rdtsc * this->x.val;
+            strength += this->rdtsc * this->x;
         }
 
-        runningTask->cycles -= 1;
+        runningTask->cycles--;
 
         if(runningTask->cycles <= 0) {
-            runningTask->instruction.execute(runningTask->instruction, runningTask->args, this);
+            runningTask->instruction.execute(runningTask->args, this);
             activeTask = false;
 
             taskQueue.erase(taskQueue.begin());
@@ -108,26 +107,14 @@ public:
 
     struct CRT display; 
 
-    void processB(size_t& solution) {
-        if(!activeTask) {
-            runningTask = &taskQueue[0];
-
-            activeTask = true;
-        }
-
-        display.updateGrid(rdtsc, x.val);
-        rdtsc++;
-
-        if(--runningTask->cycles <= 0) {
-            runningTask->instruction.execute(runningTask->instruction, runningTask->args, this);
-            activeTask = false;
-
-            taskQueue.erase(taskQueue.begin());
-        }
+    void queueInstruction(size_t instructionId, std::vector<std::string>& args) {
+        struct Task task = Task(instructions[instructionId], args);
+        taskQueue.push_back(task);
     }
+    
+    void run(std::vector<std::string>& args) {
+        struct Task task = Task(*instructionFromName(args[0]), args);
 
-    void queueInstruction(size_t instructionId, std::vector<std::string> args) {
-        struct Task task = {instructions[instructionId], args, instructions[instructionId].cycles};
         taskQueue.push_back(task);
     }
 
@@ -166,24 +153,17 @@ public:
     using AOC::Day::Day;
 
     struct CPU cpuA;
-    struct CPU cpuB;
 
-    static void noopFunction(class Instruction& instruction, std::vector<std::string>& args, class CPU* cpu) {}
-
-    static void addXFunction(class Instruction& instruction, std::vector<std::string>& args, class CPU* cpu) {
-        int count = strtoint(args[1].c_str());
-
-        cpu->x.val += count;
+    static void noopFunction(std::vector<std::string>& args, class CPU* cpu) {}
+    static void addXFunction(std::vector<std::string>& args, class CPU* cpu) {
+        cpu->x += strtoint(args[1].c_str()); 
     }
 
     void initCPU() {
         cpuA = {};
 
-        // set 0 to noop
         cpuA.addInstruction("noop", 1, (instructionFunction)&noopFunction);
         cpuA.addInstruction("addx", 2, (instructionFunction)&addXFunction);
-    
-        cpuB = cpuA;
     }
 
     void partA() {
@@ -194,8 +174,7 @@ public:
         for(std::string& str : this->input.text) {
             args = split(str, ' ');
 
-            cpuA.queueInstruction(cpuA.instructionIDFromName(args[0]), args);
-            cpuB.queueInstruction(cpuB.instructionIDFromName(args[0]), args);
+            cpuA.run(args);
         }
 
         while(cpuA.taskQueue.size() > 0 || cpuA.activeTask) {
@@ -204,16 +183,14 @@ public:
     }
 
     void partB() {
-        while(cpuB.taskQueue.size() > 0 || cpuB.activeTask) {
-            cpuB.processB(partBSolution);
-        }
+
     }
 
     void printResults() {
         printf("---- Part A ----\n");
         printf("%llu\n", partASolution);
         printf("---- Part B ----\n");
-        cpuB.display.printGrid();
+        cpuA.display.printGrid();
         printf("----------------\n\n");
         
     }
