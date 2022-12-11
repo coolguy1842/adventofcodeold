@@ -9,7 +9,7 @@
 #include <stdio.h>
 #include <cmath>
 
-#define offChar 177
+#define offChar 176
 #define onChar 178
 
 struct CRT {
