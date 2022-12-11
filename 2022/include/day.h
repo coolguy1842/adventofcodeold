@@ -25,8 +25,7 @@ private:
         std::ifstream filestream(file);
         
         if(!filestream) {
-            fprintf(stderr, "ERROR: Input file doesn't exist.\n");
-            exit(-1);
+            throw std::runtime_error("ERROR: Input file doesn't exist.\n");
         }
 
         input->numberValid = true;

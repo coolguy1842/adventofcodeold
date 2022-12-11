@@ -9,6 +9,9 @@
 #include <stdio.h>
 #include <cmath>
 
+#define offChar 177
+#define onChar 178
+
 struct CRT {
 public:
     char grid[CRT_HEIGHT][CRT_WIDTH + 1];
@@ -19,10 +22,10 @@ public:
 
         switch(std::abs((unit)pos - x)) {
         case 0: case 1:
-            grid[curCol][pos] = '#';
+            grid[curCol][pos] = onChar;
             break;
         default:
-            grid[curCol][pos] = '.';
+            grid[curCol][pos] = offChar;
             break;
         }
     }
