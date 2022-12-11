@@ -25,7 +25,7 @@ std::vector<std::string> split(std::string& str, char delim) {
     return out;
 }
 
-std::vector<std::string> split(std::string& str, std::string delim) {
+std::vector<std::string> split(std::string str, std::string delim) {
     std::vector<std::string> out;
     std::string substr;
 
