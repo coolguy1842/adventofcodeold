@@ -4,6 +4,8 @@
 #include <day.h>
 #include <util.h>
 
+#include <linkedList.h>
+
 class Day5 : AOC::Day {
 public:
     static const int dayNum = 5;
@@ -14,90 +16,70 @@ public:
 
     using AOC::Day::Day;
 
-    struct crateStruct {
-        struct crateStruct* prev = nullptr;
-        char c;
-        struct crateStruct* next = nullptr;
-    };
-    
-    struct crateList {
-        struct crateStruct* listStart = nullptr;
-        
-        size_t size = 0;
-        
-        void push_front(char c) {
-            struct crateStruct* crate = new struct crateStruct;
-            crate->c = c;
-            crate->next = listStart;
-
-            if(size++ != 0) listStart->prev = crate;
-            listStart = crate;
-        }
-        
-        char pop_front() {
-            size--;
-            char c = listStart->c;
-
-            struct crateStruct* prevStart = listStart;
-            listStart = prevStart->next;
-            delete prevStart;
-
-            listStart->prev = nullptr;
-            return c;
-        }
-    };
-    
-    void moveFromStackToStack(int quantity, struct crateList* stack, struct crateList* newStack) {
-        for(int i = 0; i < quantity; i++) {
-            //printf("%d\n", stack->size);
-            char c = stack->pop_front();
-            newStack->push_front(c);
-        }
-    }
-
-
-    void printCrates(std::vector<struct crateList> crates) {
-        for(struct crateList stack : crates) {
-            struct crateStruct* curCrate = stack.listStart;
-            
-            for(size_t i = 0; i < stack.size; i++) {
-                printf("%c", curCrate->c);
-
-                curCrate = curCrate->next;
+    void moveFromStackToStack(int quantity, linkedList<char>& stack, linkedList<char>& newStack, bool preserveOrder) {
+        switch(preserveOrder) {
+        case true:
+            for(int i = 0; i < quantity; i++) {
+                char c = stack.pop_front();
+                newStack.insertIntoLinkedList(i, c);
             }
-
-            printf("\n");
+            break;
+        default:
+            for(int i = 0; i < quantity; i++) {
+                char c = stack.pop_front();
+                newStack.push_front(c);
+            }
+            break;
         }
     }
 
-    // copy for partB
-    //std::vector<struct crateList> crates; 
+    void printStack(linkedList<char>& stack) {
+        linkedList<char>::part* part = stack.begin();
+
+        for(size_t i = 0; i < stack.size(); i++) {
+            printf("%c", part->data);
+            part = part->next;
+        }
+
+        printf("\n");
+    }
+
+    void printCrates(linkedList<linkedList<char>>& crates) {
+        linkedList<linkedList<char>>::part* part = crates.begin();
+
+        for(size_t i = 0; i < crates.size(); i++) {
+            printStack(part->data);
+
+            part = part->next;
+        }
+    }
+
     int idLine = -1;
+    linkedList<linkedList<char>> cratesA; 
+    linkedList<linkedList<char>> cratesB; 
 
     void partA() {
-        std::vector<struct crateList> crates; 
-
         while(this->input.text[++idLine][1] != '1');
 
         for(size_t i = this->input.text[idLine].size() - 1; i > 0; i--) {
             if(this->input.text[idLine][i] == ' ') continue;
 
-            // set id to id - 1
-            //int stackID = this->input.text[idLine][i] - 49;
+            linkedList<char> listA = linkedList<char>();
+            linkedList<char> listB = linkedList<char>();
 
-            struct crateList list = {};
-
-            // loop through all the crates above the id
             for(int j = 0; j < idLine; j++) {
                 char crateID = this->input.text[j][i];
                 if(crateID == ' ' || crateID == '\0') continue;
 
-                list.push_front(crateID);
+                listA.push_back(crateID);
+                listB.push_back(crateID);
             }
             
-            crates.push_back(list);
+            cratesA.push_front(listA);
+            cratesB.push_front(listB);
         }
         
+
         for(size_t i = idLine + 2; i < this->input.text.size(); i++) {
             std::vector<std::string> splitStr = split(this->input.text[i], ' ');
 
@@ -105,30 +87,32 @@ public:
             int moveFrom = strtoint(splitStr[3].c_str()) - 1;
             int moveTo = strtoint(splitStr[5].c_str()) - 1;
 
-
-            printf("\n\n");
-            printCrates(crates);
-            moveFromStackToStack(quantity, &crates[moveFrom], &crates[moveTo]);//, false);
+            moveFromStackToStack(quantity, cratesA[moveFrom], cratesA[moveTo], false);
         }
-
-        printf("\n\n");
-        printCrates(crates);
-        printf("t\n");
-        //for(std::vector<char>& stack : crates) partASolution += stack[0];
+        
+        linkedList<linkedList<char>>::part* partPtr = cratesA.begin(); 
+        for(size_t i = 0; i < cratesA.size(); i++) {
+            partASolution += partPtr->data[0];
+            partPtr = partPtr->next;
+        }
     }
 
     void partB() {
-        /*for(size_t i = idLine + 2; i < this->input.text.size(); i++) {
+        for(size_t i = idLine + 2; i < this->input.text.size(); i++) {
             std::vector<std::string> splitStr = split(this->input.text[i], ' ');
 
             int quantity = strtoint(splitStr[1].c_str());
             int moveFrom = strtoint(splitStr[3].c_str()) - 1;
             int moveTo = strtoint(splitStr[5].c_str()) - 1;
 
-            moveFromStackToStack(quantity, &crates[moveFrom], &crates[moveTo], true);
+            moveFromStackToStack(quantity, cratesB[moveFrom], cratesB[moveTo], true);
         }
         
-        for(std::vector<char>& stack : crates) partBSolution += stack[0];*/
+        linkedList<linkedList<char>>::part* partPtr = cratesB.begin(); 
+        for(size_t i = 0; i < cratesB.size(); i++) {
+            partBSolution += partPtr->data[0];
+            partPtr = partPtr->next;
+        }
     }
 
     void printResults() {
