@@ -13,16 +13,6 @@
 
 class CPU {
 public:
-    struct Task {
-        Instruction* instruction;
-        std::vector<std::string> args;
-        unit cycles;
-
-        Task(struct Instruction* instruction, std::vector<std::string> args) : instruction(instruction), args(args) {
-            this->cycles = instruction->cycles;
-        }
-    };
-
     // neaten registers up
     struct Registers {
         unit x = 1;
@@ -31,13 +21,13 @@ public:
     size_t rdtsc = 0;
     struct Registers registers;
 
-    class linkedList<class Task> taskQueue;
-    class Task* runningTask;
+    class linkedList<struct Task> taskQueue;
+    struct Task* runningTask;
 
     struct CRT display; 
     unit strength;
 
-    robin_hood::unordered_flat_map<size_t, class Instruction*> instructions;
+    robin_hood::unordered_flat_map<size_t, struct Instruction*> instructions;
     robin_hood::unordered_flat_map<std::string, size_t> instructionsIdLookup;
 
     void partA() {
