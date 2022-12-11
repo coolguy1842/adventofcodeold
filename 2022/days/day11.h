@@ -171,11 +171,9 @@ public:
         }
 
         for(size_t runs = 0; runs < 20; runs++) {
-            for(size_t i = 0; i < monkeys.size(); i++) {
-                struct Monkey* monkey = &monkeys[i];
-
-                for(auto it = monkey->items.begin(); it != monkey->items.end(); ) {
-                    monkey->runOperationOnItem(it, true);
+            for(Monkey& monkey : monkeys) {
+                for(auto it = monkey.items.begin(); it != monkey.items.end(); ) {
+                    monkey.runOperationOnItem(it, true);
                 }
             }
         }
@@ -243,17 +241,11 @@ public:
         }
 
         for(size_t runs = 0; runs < 10000; runs++) {
-            for(size_t i = 0; i < monkeys.size(); i++) {
-                struct Monkey* monkey = &monkeys[i];
-
-                for(auto it = monkey->items.begin(); it != monkey->items.end(); ) {
-                    monkey->runOperationOnItem(it, false);
+            for(Monkey& monkey : monkeys) {
+                for(auto it = monkey.items.begin(); it != monkey.items.end(); ) {
+                    monkey.runOperationOnItem(it, false);
                 }
             }
-        }
-
-        for(Monkey monkey : monkeys) {
-            monkey.printMonkey();
         }
 
         std::sort(monkeys.rbegin(), monkeys.rend(), monkeySortOperator());
