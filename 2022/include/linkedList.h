@@ -29,10 +29,22 @@ private:
             throw std::range_error("INDEX: INDEX EXCEEDS SIZE\n");
         }
 
-        struct part* part = this->__start;
+        struct part* part;
 
-        for(size_t i = 0; i < idx; i++) {
-            part = part->next;
+        // go from nearest end(either start or end)(NOT TESTED)
+        if(idx > (this->__size / 2)) {
+            part = this->__end;
+
+            for(size_t i = 0; i < idx; i++) {
+                part = part->prev;
+            }
+        }
+        else {
+            part = this->__start;
+
+            for(size_t i = 0; i < idx; i++) {
+                part = part->next;
+            }
         }
 
         return part;
@@ -77,7 +89,8 @@ public:
         this->__start = newPart;
     } 
 
-    void insertIntoLinkedList(size_t idx, T data) {
+    // broken function do not use
+    void insert(size_t idx, T data) {
         if(idx == 0) {
             push_front(data);
             return;

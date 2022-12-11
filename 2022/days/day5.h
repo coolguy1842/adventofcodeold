@@ -21,7 +21,7 @@ public:
         case true:
             for(int i = 0; i < quantity; i++) {
                 char c = stack.pop_front();
-                newStack.insertIntoLinkedList(i, c);
+                newStack.insert(i, c);
             }
             break;
         default:
