@@ -46,7 +46,7 @@ public:
         it = this->items.erase(it);
     }
 
-    void runOperationOnItem(std::vector<unit>::iterator& it, bool partA) {
+    void runOperationOnItemA(std::vector<unit>::iterator& it) {
         this->inspected++;
 
         switch (this->operation.valueIsSelf) {
@@ -68,16 +68,7 @@ public:
             break;
         }
 
-        switch (partA) {
-        case true: {
-            *it /= 3;
-            break;
-        }
-        default: {
-            *it %= magicOperator;
-            break;
-        }
-        }
+        *it /= 3;
 
         if(*it % test.divisibleBy != 0) {
             swapItem(it, this->test.falseMonkey);
@@ -86,13 +77,35 @@ public:
 
         swapItem(it, this->test.trueMonkey);
     }
+    
+    void runOperationOnItemB(std::vector<unit>::iterator& it) {
+        this->inspected++;
 
-    void printMonkey() {
-        for(size_t item : this->items) {
-            printf("%lld, ", item);
+        if(this->operation.valueIsSelf) {
+            switch (this->operation.action) {
+            case MUL: *it *= *it; break;
+            case ADD: *it += *it; break;
+            default:
+                break;
+            }
+        }
+        else {
+            switch (this->operation.action) {
+            case MUL: *it *= this->operation.actionValue; break;
+            case ADD: *it += this->operation.actionValue; break;
+            default:
+                break;
+            }
         }
 
-        printf("\n");
+        *it %= magicOperator;
+
+        if(*it % test.divisibleBy != 0) {
+            swapItem(it, this->test.falseMonkey);
+            return;
+        }
+
+        swapItem(it, this->test.trueMonkey);
     }
 };
 
@@ -112,88 +125,21 @@ public:
 
 
     using AOC::Day::Day;
+    std::vector<struct Monkey> monkeysA;
+    std::vector<struct Monkey> monkeysB;
 
     void partA() {
-        std::vector<struct Monkey> monkeys;
         Monkey curMonkey = Monkey();
 
         size_t curLine = 0;
 
         for(std::string& str : this->input.text) {
             if(str.size() <= 0) {
-                monkeys.push_back(curMonkey);
+                monkeysA.push_back(curMonkey);
 
                 curLine = -1;
-                curMonkey = Monkey();
-            }
-            else {
-                switch(curLine) {
-                case 1: {
-                    for(std::string& str2 : split(split(str, ": ")[1], ", ")) {
-                        curMonkey.items.push_back(strtounit(str2.c_str()));
-                    }
-                    break;
-                }
-                case 2: {
-                    std::vector<std::string> splitStr = split(split(str, " = ")[1], ' ');
-
-                    if(splitStr[2] == "old") curMonkey.operation.valueIsSelf = true;
-                    else curMonkey.operation.actionValue = strtoint(splitStr[2].c_str());
-                    
-                    curMonkey.operation.action = splitStr[1][0];
-                    break;
-                }
-                case 3: {
-                    curMonkey.test.divisibleBy = strtoint(split(str, "y ")[1].c_str());
-                    break;
-                }
-                case 4: {
-                    curMonkey.test.trueMonkeyNum = strtoull(split(str, "y ")[1].c_str());
-                    break;
-                }
-                case 5: {
-                    curMonkey.test.falseMonkeyNum = strtoull(split(str, "y ")[1].c_str());
-                    break;
-                }
-                default:
-                    break;
-                }
-            }
-
-            curLine++;
-        }
-
-        monkeys.push_back(curMonkey);
-
-        for(Monkey& monkey : monkeys) {
-            monkey.test.falseMonkey = &monkeys[monkey.test.falseMonkeyNum];
-            monkey.test.trueMonkey = &monkeys[monkey.test.trueMonkeyNum];
-        }
-
-        for(size_t runs = 0; runs < 20; runs++) {
-            for(Monkey& monkey : monkeys) {
-                for(auto it = monkey.items.begin(); it != monkey.items.end(); ) {
-                    monkey.runOperationOnItem(it, true);
-                }
-            }
-        }
-
-        std::sort(monkeys.rbegin(), monkeys.rend(), monkeySortOperator());
-        partASolution = monkeys[0].inspected * monkeys[1].inspected;
-    }
-
-    void partB() {
-        std::vector<struct Monkey> monkeys;
-        Monkey curMonkey = Monkey();
-
-        size_t curLine = 0;
-
-        for(std::string& str : this->input.text) {
-            if(str.size() <= 0) {
-                monkeys.push_back(curMonkey);
-
-                curLine = -1;
-                curMonkey = Monkey();
+                curMonkey.items.clear();
+                curMonkey.operation.valueIsSelf = false;
             }
             else {
                 switch(curLine) {
@@ -215,6 +161,7 @@ public:
                 case 3: {
                     curMonkey.test.divisibleBy = strtoint(split(str, "y ")[1].c_str());
                     magicOperator *= curMonkey.test.divisibleBy;
+
                     break;
                 }
                 case 4: {
@@ -232,24 +179,65 @@ public:
 
             curLine++;
         }
+        monkeysA.push_back(curMonkey);
+        
+        monkeysB = monkeysA;
 
-        monkeys.push_back(curMonkey);
-
-        for(Monkey& monkey : monkeys) {
-            monkey.test.falseMonkey = &monkeys[monkey.test.falseMonkeyNum];
-            monkey.test.trueMonkey = &monkeys[monkey.test.trueMonkeyNum];
+        for(Monkey& monkey : monkeysA) {
+            monkey.test.falseMonkey = &monkeysA[monkey.test.falseMonkeyNum];
+            monkey.test.trueMonkey = &monkeysA[monkey.test.trueMonkeyNum];
         }
 
-        for(size_t runs = 0; runs < 10000; runs++) {
-            for(Monkey& monkey : monkeys) {
+        for(size_t runs = 0; runs < 20; runs++) {
+            for(Monkey& monkey : monkeysA) {
                 for(auto it = monkey.items.begin(); it != monkey.items.end(); ) {
-                    monkey.runOperationOnItem(it, false);
+                    monkey.runOperationOnItemA(it);
                 }
             }
         }
 
-        std::sort(monkeys.rbegin(), monkeys.rend(), monkeySortOperator());
-        partBSolution = monkeys[0].inspected * monkeys[1].inspected;
+        size_t highest[2] = {0, 0};
+
+        for(Monkey& monkey : monkeysA) {
+            if(monkey.inspected > highest[0]) {
+                highest[1] = highest[0];
+                highest[0] = monkey.inspected;
+            }
+            else if(monkey.inspected > highest[1]) {
+                highest[1] = monkey.inspected;
+            }
+        }
+
+        partASolution = highest[0] * highest[1];
+    }
+
+    void partB() {
+        for(Monkey& monkey : monkeysB) {
+            monkey.test.falseMonkey = &monkeysB[monkey.test.falseMonkeyNum];
+            monkey.test.trueMonkey = &monkeysB[monkey.test.trueMonkeyNum];
+        }
+
+        for(size_t runs = 0; runs < 10000; runs++) {
+            for(Monkey& monkey : monkeysB) {
+                for(auto it = monkey.items.begin(); it != monkey.items.end(); ) {
+                    monkey.runOperationOnItemB(it);
+                }
+            }
+        }
+
+        size_t highest[2] = {0, 0};
+
+        for(Monkey& monkey : monkeysB) {
+            if(monkey.inspected > highest[0]) {
+                highest[1] = highest[0];
+                highest[0] = monkey.inspected;
+            }
+            else if(monkey.inspected > highest[1]) {
+                highest[1] = monkey.inspected;
+            }
+        }
+
+        partBSolution = highest[0] * highest[1];
     }
 
     void printResults() {
