@@ -5,29 +5,30 @@
 #include <util.h>
 #include <timer.h>
 
-#define currentDay Day13
+#define currentDay Day12
 
 #define showResults true
-#define showTimers false
+#define showTimers true
 
 int main() {    
     AOC::Timer partATimer("Part A");
     AOC::Timer partBTimer("Part B");
     
     char inputStr[22];
-    char inputStrB[23];
+    //char inputStrB[23];
 
 #ifdef _WIN32
     sprintf(inputStr, ".\\dayinputs\\%d\\input", currentDay::dayNum);
-    if(currentDay::hasSecondInput) sprintf(inputStr, ".\\dayinputs\\%d\\inputB", currentDay::dayNum);
+    //if(currentDay::hasSecondInput) sprintf(inputStr, ".\\dayinputs\\%d\\inputB", currentDay::dayNum);
 #else
     sprintf(inputStr, "./dayinputs/%d/input", currentDay::dayNum);
-    if(currentDay::hasSecondInput) sprintf(inputStr, "./dayinputs/%d/inputB", currentDay::dayNum);
+    //if(currentDay::hasSecondInput) sprintf(inputStr, "./dayinputs/%d/inputB", currentDay::dayNum);
 #endif
     currentDay* day;
 
-    if(currentDay::hasSecondInput) day = new currentDay(inputStr, inputStrB);
-    else day = new currentDay(inputStr);
+    //if(currentDay::hasSecondInput) day = new currentDay(inputStr, inputStrB);
+    //else 
+    day = new currentDay(inputStr);
 
     partATimer.start();
     day->partA();

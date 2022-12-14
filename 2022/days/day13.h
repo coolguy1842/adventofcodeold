@@ -50,6 +50,8 @@ public:
                 nestLevel--;
             }
         }
+
+        return packet;
     }
 
     void partA() {

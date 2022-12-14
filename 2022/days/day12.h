@@ -8,6 +8,10 @@
 #include <cmath>
 
 #include <queue>
+#include <array>
+
+static size_t width;
+static size_t height;
 
 namespace dijkstra {
     
@@ -16,63 +20,48 @@ struct position {
     char y;
     size_t z;
         
-    bool operator==(const position& pos) {
-        return x == pos.x && z == pos.z;
-    }
+    bool operator==(const position& pos) { return x == pos.x && z == pos.z; }
 }; 
 
 struct cell {
     struct position position; 
 
-    int totalCost = __INT_MAX__, cost = 1;
-
+    int totalCost = 0;
     bool visited = false;
 };
 
-struct grid {
-    std::vector<std::vector<struct cell>> data;
-
-    size_t width() { return this->data[0].size(); }
-    size_t height() { return this->data.size(); }
-};
-
 bool isNeighbourValid(position& parentPos, position& pos, std::vector<std::vector<cell>>& grid, size_t& width, size_t& height) {
-    if(pos.x < 0 || (size_t)pos.x >= width) return false; 
-    if(pos.z < 0 || (size_t)pos.z >= height) return false; 
-    if(grid[pos.z][pos.x].visited) return false;
+    if((pos.x < 0 || pos.x >= width) || (pos.z < 0 || pos.z >= height)) return false; 
 
-    return grid[pos.z][pos.x].position.y - parentPos.y <= 1;
+    struct cell& cell = grid[pos.z][pos.x];
+
+    return (cell.position.y - parentPos.y <= 1) && !cell.visited;
 }
 
-std::vector<cell*> getValidNeighbours(position& pos, std::vector<std::vector<cell>>& grid, size_t& width, size_t& height) {
-    std::vector<cell*> neighbours = {};
+std::array<cell*, 4> getValidNeighbours(position& pos, std::vector<std::vector<cell>>& grid, size_t& width, size_t& height) {
+    std::array<cell*, 4> neighbours = {nullptr, nullptr, nullptr, nullptr};
 
     position leftPos = pos;
-    leftPos.x -= 1;
+    leftPos.x--;
     
     position rightPos = pos;
-    rightPos.x += 1;
+    rightPos.x++;
+
+    position upPos = pos;
+    upPos.z--;
 
     position downPos = pos;
-    downPos.z += 1;
+    downPos.z++;
     
-    position upPos = pos;
-    upPos.z -= 1;
-    
-    if(isNeighbourValid(pos, leftPos, grid, width, height)) neighbours.push_back(&grid[leftPos.z][leftPos.x]);
-    if(isNeighbourValid(pos, rightPos, grid, width, height)) neighbours.push_back(&grid[rightPos.z][rightPos.x]);
-    if(isNeighbourValid(pos, downPos, grid, width, height)) neighbours.push_back(&grid[downPos.z][downPos.x]);
-    if(isNeighbourValid(pos, upPos, grid, width, height)) neighbours.push_back(&grid[upPos.z][upPos.x]);
+    if(isNeighbourValid(pos, leftPos, grid, width, height)) neighbours[0] = &grid[leftPos.z][leftPos.x];
+    if(isNeighbourValid(pos, rightPos, grid, width, height)) neighbours[1] = &grid[rightPos.z][rightPos.x];
+    if(isNeighbourValid(pos, upPos, grid, width, height)) neighbours[2] = &grid[upPos.z][upPos.x];
+    if(isNeighbourValid(pos, downPos, grid, width, height)) neighbours[3] = &grid[downPos.z][downPos.x];
 
     return neighbours;
 }
 
-int dijkstraSearch(struct std::vector<std::vector<dijkstra::cell>> grid, struct position& pos, struct position& dest) {
-    size_t height = grid.size();
-    size_t width = grid[0].size();
-    
-    grid[pos.z][pos.x].totalCost = 0.0;
-
+int dijkstraSearch(struct std::vector<std::vector<dijkstra::cell>> grid, struct position& pos, struct position& dest, int maxScore = __INT_MAX__) {
     struct queueContents {
         cell* cell;
 
@@ -83,23 +72,25 @@ int dijkstraSearch(struct std::vector<std::vector<dijkstra::cell>> grid, struct 
     
     queue.emplace(&grid[pos.z][pos.x]);
 
+    struct cell* curCell;
     while(!queue.empty()) {
-        struct queueContents qC = queue.top();
-        struct cell* curCell = qC.cell;
+        const struct queueContents& qC = queue.top();
+        curCell = qC.cell;
 
         queue.pop();
 
         if(curCell->visited) continue;
         curCell->visited = true;
+        
+        if(curCell->totalCost > maxScore) continue;
  
-        if (curCell->position == dest) {
-            return curCell->totalCost;
-        }
-
         for(cell* cell : getValidNeighbours(curCell->position, grid, width, height)) {
-            if((cell->totalCost = std::min(curCell->totalCost + cell->cost, cell->totalCost)) != __INT_MAX__) {
-                queue.emplace(cell);
-            }
+            if(!cell) continue;
+            if(cell->position == dest) return curCell->totalCost + 1;
+
+
+            cell->totalCost = curCell->totalCost + 1;
+            queue.emplace(cell);
         }
     }
 
@@ -126,30 +117,33 @@ public:
     std::vector<std::vector<dijkstra::cell>> grid = {};
         
     void readInput(std::vector<std::vector<dijkstra::cell>>& grid) {
-        grid = {};
+        width = this->input.text[0].size();
+        height = this->input.text.size();
 
-        for(size_t z = 0; z < this->input.text.size(); z++) {
-            grid.push_back({});
+        grid = std::vector<std::vector<dijkstra::cell>>(height, std::vector<dijkstra::cell>());
+        dijkstra::cell cell = {};
 
-            for(size_t x = 0; x < this->input.text[0].size(); x++) {
-                dijkstra::cell cell = {};
+
+        for(size_t z = 0; z < height; z++) {
+            for(size_t x = 0; x < width; x++) {
                 cell.position = {x, this->input.text[z][x], z};
-                
-                cell.cost = 1;
-                cell.totalCost = __INT_MAX__;
-                cell.visited = false;
 
-                if(this->input.text[z][x] == 'S') {
+                switch (this->input.text[z][x]) {
+                case 'S':
                     cell.position.y = 'a';
                     startPos = cell.position;
-                }
-                else if(this->input.text[z][x] == 'E') {
+
+                    positions.push_back(cell.position);
+                    break;
+                case 'E':
                     cell.position.y = 'z';
                     endPos = cell.position;
-                }
-                
-                if(this->input.text[z][x] == 'a') {
+                    break;
+                case 'a':
                     positions.push_back(cell.position);
+                    break;
+                default:
+                    break;
                 }
 
                 grid[z].push_back(cell);
@@ -166,8 +160,8 @@ public:
     void partB() {
         int lowest = __INT_MAX__;
 
-        for(dijkstra::position pos : positions) {
-            lowest = std::min(dijkstra::dijkstraSearch(grid, pos, endPos), lowest);
+        for(struct dijkstra::position& pos : positions) {
+            lowest = std::min(dijkstra::dijkstraSearch(grid, pos, endPos, lowest), lowest);
         }
 
         partBSolution = lowest;

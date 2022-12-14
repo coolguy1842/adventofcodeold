@@ -57,18 +57,18 @@ private:
     
 protected:
     struct input input;
-    struct input input2;
+    //struct input input2;
 
 public:
-    Day(std::string input, std::string input2 = std::string()) {
+    Day(std::string input) {//, std::string input2 = std::string()) {
         if(input.size() > 0) readInput(&this->input, input);
-        if(input2.size() > 0) readInput(&this->input2, input2);
+        //if(input2.size() > 0) readInput(&this->input2, input2);
     }
 
     ~Day() {}
 
     struct input getInput() { return this->input; }
-    struct input getInput2() { return this->input2; }
+    //struct input getInput2() { return this->input2; }
 
     void partA();
     void partB();
