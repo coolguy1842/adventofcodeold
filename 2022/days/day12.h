@@ -26,7 +26,6 @@ struct position {
 struct cell {
     struct position position; 
 
-    int totalCost = 0;
     bool visited = false;
 };
 
@@ -61,11 +60,12 @@ std::array<cell*, 4> getValidNeighbours(position& pos, std::vector<std::vector<c
     return neighbours;
 }
 
-int dijkstraSearch(struct std::vector<std::vector<dijkstra::cell>> grid, struct position& pos, struct position& dest, int maxScore = __INT_MAX__) {
+int dijkstraSearch(struct std::vector<std::vector<dijkstra::cell>>& grid, struct position& pos, struct position& dest, int maxScore = __INT_MAX__) {
     struct queueContents {
         cell* cell;
+        int totalCost = 0;
 
-        bool operator>(const queueContents& qC) const { return cell->totalCost > qC.cell->totalCost; }
+        bool operator>(const queueContents& qC) const { return totalCost > qC.totalCost; }
     };
 
     std::priority_queue<queueContents, std::vector<queueContents>, std::greater<queueContents>> queue;
@@ -74,23 +74,23 @@ int dijkstraSearch(struct std::vector<std::vector<dijkstra::cell>> grid, struct 
 
     struct cell* curCell;
     while(!queue.empty()) {
-        const struct queueContents& qC = queue.top();
-        curCell = qC.cell;
-
+        const struct queueContents qC = queue.top();
         queue.pop();
 
+        curCell = qC.cell;
+        const int& totalCost = qC.totalCost;
+
+        
         if(curCell->visited) continue;
         curCell->visited = true;
         
-        if(curCell->totalCost > maxScore) continue;
+        if(totalCost > maxScore) continue;
  
         for(cell* cell : getValidNeighbours(curCell->position, grid, width, height)) {
             if(!cell) continue;
-            if(cell->position == dest) return curCell->totalCost + 1;
+            if(cell->position == dest) return totalCost + 1;
 
-
-            cell->totalCost = curCell->totalCost + 1;
-            queue.emplace(cell);
+            queue.emplace(cell, totalCost + 1);
         }
     }
 
@@ -160,8 +160,14 @@ public:
 
     void partB() {
         int lowest = __INT_MAX__;
-
+        
         for(struct dijkstra::position& pos : positions) {
+            for(std::vector<dijkstra::cell>& cells : grid) {
+                for(dijkstra::cell& cell : cells) {
+                    cell.visited = false;
+                }
+            }
+
             lowest = std::min(dijkstra::dijkstraSearch(grid, pos, endPos, lowest), lowest);
         }
 
