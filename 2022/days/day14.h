@@ -35,6 +35,7 @@ public:
     };
 
     robin_hood::unordered_flat_map<struct position, int, struct position> blocks = {};
+    robin_hood::unordered_flat_map<struct position, int, struct position> blocksB = {};
     
     unit minX = __INT_MAX__;
     unit maxX = 0;
@@ -44,7 +45,7 @@ public:
 
     struct position sandDropPos = {500, 0};
 
-    bool dropSand(robin_hood::unordered_flat_map<struct position, int, struct position>& blocks, struct position sandPos, unit minX, unit maxX, unit minY, unit maxY) {
+    bool dropSand(robin_hood::unordered_flat_map<struct position, int, struct position>& blocks, struct position sandPos, unit& minX, unit& maxX, unit& minY, unit& maxY) {
         while(blocks[sandPos] == AIR) {
             sandPos.y++;
 
@@ -62,13 +63,37 @@ public:
             }
 
             if(sandPos.y > maxY) return false;
-            if(sandPos.y < minY) return false;
 
-            if(sandPos.x > maxX) return false;
-            if(sandPos.x < minX) return false;
+            if(sandPos.x < minX || sandPos.x > maxX) return false;
         }
 
-        if(sandPos.y <= minY) return false;
+        if(sandPos.y == minY) return false;
+
+        blocks[sandPos] = SAND; 
+
+        return true;
+    }
+
+    bool dropSandB(robin_hood::unordered_flat_map<struct position, int, struct position>& blocks, struct position sandPos, unit& minX, unit& maxX, unit& minY, unit& maxY) {
+        while(blocks[sandPos] == AIR) {
+            if(sandPos.y == maxY) break;
+            sandPos.y++;
+
+            if(blocks[sandPos] != AIR) {
+                if(blocks[{sandPos.x - 1, sandPos.y}] == AIR) {
+                    sandPos.x--;
+                }
+                else if(blocks[{sandPos.x + 1, sandPos.y}] == AIR) {
+                    sandPos.x++;
+                }
+                else {
+                    sandPos.y--;
+                    
+                    if(sandPos.y == minY) return false;
+                    break;
+                }
+            }
+        }
 
         blocks[sandPos] = SAND; 
 
@@ -97,16 +122,14 @@ public:
         }
     }
 
-    void readInput(robin_hood::unordered_flat_map<struct position, int, struct position>& blocks, unit& minX, unit& maxX, unit& minY, unit& maxY, bool partA = true) {
-        blocks = {};
-        
+    void readInput() {
+        std::vector<std::string> vals;
         for(std::string& str : this->input.text) {
-            std::vector<std::string> positions = split(str, " -> ");
             unit prevX = __INT_MAX__;
             unit prevY = __INT_MAX__;
             
-            for(std::string& pos : positions) {
-                std::vector<std::string> vals = split(pos, ',');
+            for(std::string& pos : split(str, " -> ")) {
+                vals = split(pos, ',');
 
                 unit x = strtounit(vals[0].c_str());
                 unit y = strtounit(vals[1].c_str());
@@ -128,6 +151,7 @@ public:
                         struct position position = {i, j};
 
                         blocks[position] = SOLID;
+                        blocksB[position] = SOLID;
                     }   
                 }
 
@@ -135,40 +159,23 @@ public:
                 prevY = y;
             }
         }
-
-        if(!partA) {
-            maxY += 2;
-
-            minX -= minX / 2;
-            maxX += maxX / 2;
-
-            for(unit x = minX; x <= maxX; x++) {
-                blocks[{x, maxY}] = SOLID;
-            }
-        }
     }
 
     void partA() {
-        readInput(this->blocks, minX, maxX, minY, maxY);
-        size_t droppedSand = 0;
-
-        while(dropSand(blocks, sandDropPos, minX, maxX, minY, maxY)) {
-
-            droppedSand++;
-        }
-
-        partASolution = droppedSand;
+        readInput();
+        
+        while(dropSand(blocks, sandDropPos, minX, maxX, minY, maxY)) partASolution++;
     }
 
     void partB() {
-        readInput(this->blocks, minX, maxX, minY, maxY, false);
-        size_t droppedSand = 1;
+        maxY++;
+        
+        minX -= (minX / 2);
+        maxX += (maxX / 2);
 
-        while(dropSand(blocks, sandDropPos, minX, maxX, minY, maxY)) {
-            droppedSand++;
-        }
-
-        partBSolution = droppedSand;
+        do {
+            partBSolution++;
+        } while(dropSandB(blocksB, sandDropPos, minX, maxX, minY, maxY));
     }
 
     void printResults() {
