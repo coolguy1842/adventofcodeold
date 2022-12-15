@@ -121,26 +121,27 @@ public:
         height = this->input.text.size();
 
         grid = std::vector<std::vector<dijkstra::cell>>(height, std::vector<dijkstra::cell>());
-        dijkstra::cell cell = {};
-
 
         for(size_t z = 0; z < height; z++) {
             for(size_t x = 0; x < width; x++) {
-                cell.position = {x, this->input.text[z][x], z};
+                dijkstra::cell cell = {};
 
-                switch (this->input.text[z][x]) {
+                char& y = this->input.text[z][x];
+                cell.position = {x, y, z};
+
+                switch (y) {
                 case 'S':
                     cell.position.y = 'a';
                     startPos = cell.position;
-
+                    
+                    positions.push_back(cell.position);
+                    break;
+                case 'a':
                     positions.push_back(cell.position);
                     break;
                 case 'E':
                     cell.position.y = 'z';
                     endPos = cell.position;
-                    break;
-                case 'a':
-                    positions.push_back(cell.position);
                     break;
                 default:
                     break;
