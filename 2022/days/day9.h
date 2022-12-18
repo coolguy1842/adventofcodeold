@@ -8,18 +8,6 @@
 
 #include <robin_hood.h>
 
-struct position {
-    int x = 0;
-    int y = 0;
-    
-    bool operator==(const position& p) const { 
-        return (this->x == p.x && this->y == p.y);
-    }
-    
-    std::size_t operator()(const position& p) const {
-        return ((size_t)p.x << 32) | (size_t)p.y;
-    }
-};
 
 enum Direction {
     LEFT = 'L',
@@ -30,6 +18,19 @@ enum Direction {
 };
 
 struct knot {
+    struct position {
+        int x = 0;
+        int y = 0;
+        
+        bool operator==(const position& p) const { 
+            return (this->x == p.x && this->y == p.y);
+        }
+        
+        std::size_t operator()(const position& p) const {
+            return ((size_t)p.x << 32) | (size_t)p.y;
+        }
+    };
+    
     struct position position;
     
     robin_hood::unordered_flat_map<struct position, bool, struct position> prevPositions;

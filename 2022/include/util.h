@@ -42,6 +42,18 @@ std::vector<std::string> split(std::string str, std::string delim) {
     return out;
 }
 
+std::string replace(std::string str, std::string find, std::string replace) {
+    if(find.empty()) return str;
+
+    size_t i = 0;
+    while((i = str.find(find, i)) != std::string::npos) {
+        str.replace(i, find.length(), replace);
+        i += replace.length();
+    }
+
+    return str;
+}
+
 // shaves off ~200us compared to std::stoi in day 4
 int strtoint(const char* str) {
     int out = 0;
