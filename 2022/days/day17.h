@@ -8,22 +8,23 @@
 
 #include <robin_hood.h>
 
-struct position {
-    size_t x, y;
-
-    bool operator==(const position& p) const { 
-        return (this->x == p.x && this->y == p.y);
-    }
-    
-    std::size_t operator()(const position& p) const {
-        return (p.x << 32) | p.y;
-    }
-};
-
 class shape {
 private:
     bool* data;
 public:
+    struct position {
+        size_t x, y;
+
+        bool operator==(const position& p) const { 
+            return (this->x == p.x && this->y == p.y);
+        }
+        
+        std::size_t operator()(const position& p) const {
+            return (p.x << 32) | p.y;
+        }
+    };
+
+
     size_t width;
     size_t height;
 
@@ -82,13 +83,13 @@ public:
     using AOC::Day::Day;
     
     std::vector<shape> shapes;
-    robin_hood::unordered_flat_map<struct position, bool, struct position> grid;
+    robin_hood::unordered_flat_map<shape::position, bool, shape::position> grid;
 
     size_t height = 0;
     size_t width = 5;
 
     size_t curShapeIdx = 0;
-    struct position curShapePos = {};
+    shape::position curShapePos = {};
 
     void initShapes() {
         // shape 0 =
